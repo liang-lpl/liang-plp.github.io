@@ -1,0 +1,42 @@
+import requests,time,parsel
+headers={
+    'user-agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36',
+    'Referer': 'https://www.mzitu.com/mm/'
+}
+
+def Download_tu(tu_download,tu_name):#下载一张图片
+    tu_pian=requests.get(tu_download,headers=headers)
+    s='E:\下载库\图片\图片-1'#设置储存路径
+    with open(s+'\\'+tu_name+'.jpg','wb') as f:
+        f.write(tu_pian.content)#写入图片
+
+def Download_tuji(url,n):#下载一个图集
+    response=requests.get(url,headers=headers)#发送网络请求
+    nei_rong=parsel.Selector(response.text)#解析网页
+    ye_shu=int(nei_rong.xpath('//div[4]/a[5]/span/text()').get())#获取图片最大页数
+    for i in range(ye_shu):
+        time.sleep(0.3)#设置下载延时
+        tu_download=nei_rong.xpath('//p/a/img/@src').get()#获取图片下载地址
+        huan_ye=nei_rong.xpath('//p/a/@href').get()#获取换页地址
+        tu_name=nei_rong.xpath('//div[1]/h2/text()').get()#提取图片名字
+        print(f'正在下载第{i+1}张：{tu_name}，此系列共有张{ye_shu}图片,总共下载了{n}张')
+        #print(tu_download,huan_ye,tu_name)
+        Download_tu(tu_download,tu_name)
+        url=huan_ye#换一页
+        response=requests.get(url,headers=headers)#换请求新页面
+        nei_rong=parsel.Selector(response.text)
+        n+=1#计数
+    return n
+
+
+def Download_yiye(url):#下载整页图
+    response=requests.get(url,headers=headers)
+    nei_rong=parsel.Selector(response.text)
+    urls=nei_rong.xpath('//*[@id="pins"]/li/a/@href').getall()
+    n=1#获取当前页面不同类型图集的链接
+    for url in urls:
+        print(url)#打印要下载的图集地址
+        n=Download_tuji(url,n)#下载图片
+
+url='https://www.mzitu.com/xinggan/'#要爬取的网址
+Download_yiye(url)
