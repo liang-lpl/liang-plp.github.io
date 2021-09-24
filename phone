@@ -1,0 +1,45 @@
+import requests, json
+
+def phone_api(phone):
+
+    url = 'http://apis.juhe.cn/mobile/get'
+    
+    #phone = input('请输入手机号码:')
+    params = {
+        "phone": phone,  # 查询的手机号码或手机号码前7位
+        "key": "xxxxxxxxxxxxxx",  # 您申请的API接口请求Key
+    }
+
+    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'}
+    request = requests.post(url, headers=headers ,data=params)
+
+    content = request.json()
+    #print(content)
+    if (content):
+        try:
+            result = content
+            error_code = result['error_code']
+            if (error_code == 0):
+                province = result['result']['province']
+                city = result['result']['city']
+                areacode = result['result']['areacode']
+                zip = result['result']['zip']
+                company = result['result']['company']
+                print("省份：%s\n城市：%s\n区号：%s\n邮编：%s\n运营商：%s" % (province, city, areacode, zip, company))
+            else:
+                #error_code_dict = {201101:'手机号码不能为空',201102:'错误的手机号码',201103:'查询无结果'}
+                #print("请求失败:%s %s %s" % (result['error_code'], result['reason'],error_code_dict[result['error_code']]))
+                print("请求失败:%s %s" % (result['error_code'], result['reason']))
+        except Exception as e:
+            print("解析结果异常：%s" % e)
+    else:
+        # 可能网络异常等问题，无法获取返回内容，请求异常
+        print("请求异常")
+
+phone = input('请输入手机号码:')
+
+while True:
+    phone_api(phone)
+    phone = input('请输入手机号码(输入q退出):')
+    if phone=='q':
+        break
