@@ -36,10 +36,11 @@ def phone_api(phone):
         # 可能网络异常等问题，无法获取返回内容，请求异常
         print("请求异常")
 
-phone = input('请输入手机号码:')
+#phone = input('请输入手机号码:')
 
 while True:
-    phone_api(phone)
+    
     phone = input('请输入手机号码(输入q退出):')
     if phone=='q':
         break
+    phone_api(phone)
